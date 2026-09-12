@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HM Café | Administrator{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="stylesheet" href="{{ asset('innovation.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="admin-body">
+
+<div class="admin-wrapper">
+    {% include 'partials/sidebar.html.twig' %}
+    
+    <div class="admin-content-area">
+        {% include 'partials/topbar.html.twig' %}
+
+        <main class="admin-main-body">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="form-message {{ label }}">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </main>
+
+        {% include 'partials/footer.html.twig' %}
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const sidebar = document.getElementById("adminSidebar");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const sidebarClose = document.getElementById("sidebarClose");
+    const backdrop = document.getElementById("sidebarBackdrop");
+
+    function openSidebar() {
+        if (sidebar) sidebar.classList.add("show");
+        if (backdrop) backdrop.classList.add("show");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeSidebar() {
+        if (sidebar) sidebar.classList.remove("show");
+        if (backdrop) backdrop.classList.remove("show");
+        document.body.style.overflow = "";
+    }
+
+    if (sidebarToggle) sidebarToggle.addEventListener("click", openSidebar);
+    if (sidebarClose) sidebarClose.addEventListener("click", closeSidebar);
+    if (backdrop) backdrop.addEventListener("click", closeSidebar);
+});
+</script>
+{% block javascripts %}{% endblock %}
+</body>
+</html>

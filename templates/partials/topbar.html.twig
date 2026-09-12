@@ -1,0 +1,15 @@
+<header class="admin-topbar">
+    <div class="admin-topbar-left">
+        <button type="button" class="admin-mobile-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+            ☰
+        </button>
+        <h1 class="admin-topbar-title">{{ topbarTitle|default('Dashboard') }}</h1>
+    </div>
+
+    <div class="admin-topbar-right">
+        <a href="{{ path('app_home') }}" target="_blank" class="admin-storefront-btn">
+            <span>☕</span>
+            <span>View Storefront</span>
+        </a>
+    </div>
+</header>

@@ -1,0 +1,69 @@
+services:
+  # 1. MySQL Database Service
+  database:
+    image: mysql:8.0
+    container_name: symfony-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: moreno
+      MYSQL_PASSWORD: hemdan
+      MYSQL_DATABASE: app_db
+    ports:
+      - "3310:3306"
+    volumes:
+      - symfony-db-data:/var/lib/mysql
+    networks:
+      - platform-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+
+  # 2. phpMyAdmin Database Manager
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: symfony-pma
+    restart: unless-stopped
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      PMA_USER: moreno
+      PMA_PASSWORD: hemdan
+    ports:
+      - "8081:80"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - platform-network
+
+  # 3. Symfony Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: symfony-app-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: "mysql://moreno:hemdan@database:3306/app_db?serverVersion=8.0&charset=utf8mb4"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - platform-network
+
+networks:
+  platform-network:
+    name: platform-network
+
+volumes:
+  symfony-db-data:
+    name: symfony-db-data

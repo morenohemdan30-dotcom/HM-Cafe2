@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch HM Café Dashboard (127.0.0.1:8000)",
+            "url": "http://127.0.0.1:8000/dashboard",
+            "webRoot": "${workspaceFolder}/public"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch HM Café Storefront (127.0.0.1:8000)",
+            "url": "http://127.0.0.1:8000/",
+            "webRoot": "${workspaceFolder}/public"
+        }
+    ]
+}

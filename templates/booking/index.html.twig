@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HM Café | Table Reservations{% endblock %}
+
+{% block body %}
+<section style="padding: 120px 7% 80px; min-height: 80vh;">
+    <div style="max-width: 650px; margin: 0 auto; background: #111; border: 1px solid #222; border-radius: 16px; padding: 40px;">
+        <div class="section-title" style="margin-bottom: 25px;">
+            <span></span>
+            <h2>BOOK A <strong>TABLE</strong></h2>
+            <span></span>
+        </div>
+        <p style="text-align: center; color: #888; font-size: 14px; margin-top: -15px; margin-bottom: 30px;">
+            Reserve your favorite cozy corner or book a table for events and workshops.
+        </p>
+
+        <form method="post" action="{{ path('app_book') }}">
+            <div style="margin-bottom: 20px;">
+                <label style="color:#aaa; font-size:12px; display:block; margin-bottom:6px;">NUMBER OF GUESTS</label>
+                <select name="guests" style="width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;">
+                    <option value="1">1 Person (Solo Work / Study)</option>
+                    <option value="2" selected>2 Persons (Cozy Date)</option>
+                    <option value="4">4 Persons (Friends / Family)</option>
+                    <option value="6">6+ Persons (Group Meeting / Event)</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <label style="color:#aaa; font-size:12px; display:block; margin-bottom:6px;">RESERVATION DATE</label>
+                    <input type="date" name="booking_date" required min="{{ "now"|date("Y-m-d") }}" 
+                           style="width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;">
+                </div>
+                <div>
+                    <label style="color:#aaa; font-size:12px; display:block; margin-bottom:6px;">RESERVATION TIME</label>
+                    <input type="time" name="booking_time" required 
+                           style="width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="color:#aaa; font-size:12px; display:block; margin-bottom:6px;">SPECIAL REQUESTS OR NOTES (OPTIONAL)</label>
+                <textarea name="notes" rows="3" placeholder="Dietary restrictions, preferred seating area, event celebration..." 
+                          style="width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px; resize:vertical;"></textarea>
+            </div>
+
+            {% if app.user %}
+                <button type="submit" class="hero-btn green-btn" style="width:100%; padding:14px; border:none; cursor:pointer; font-size:14px;">
+                    📅 CONFIRM RESERVATION
+                </button>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="hero-btn green-btn" style="display:block; text-align:center; padding:14px; text-decoration:none;">
+                    🔒 LOG IN TO BOOK TABLE
+                </a>
+            {% endif %}
+        </form>
+    </div>
+</section>
+{% endblock %}

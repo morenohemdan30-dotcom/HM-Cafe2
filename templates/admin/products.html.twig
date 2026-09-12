@@ -1,0 +1,279 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}HM Café | Menu & Products Catalog{% endblock %}
+
+{% block body %}
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
+    <div>
+        <h1 style="margin: 0 0 4px; color: #fff;">🍵 Product &amp; <span style="color: var(--green);">Menu Catalog</span></h1>
+        <p style="color: #888; font-size: 13px; margin: 0;">Full system-wide data access: view, create, edit, and delete any product record.</p>
+    </div>
+    <button type="button" class="btn-admin-primary" onclick="openAddModal()">
+        ➕ ADD NEW PRODUCT
+    </button>
+</div>
+
+<!-- FILTER BAR -->
+<div class="admin-panel-card" style="margin-bottom: 20px;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px;">
+        <div class="admin-filter-bar" style="margin-bottom: 0;">
+            {% for cat in ['all', 'Coffee', 'Non-Coffee', 'Pastries', 'Meals'] %}
+                <a href="{{ path('admin_products', {category: cat, search: search}) }}" class="admin-filter-tab {{ categoryFilter == cat ? 'active' : '' }}">
+                    {{ cat|upper }}
+                </a>
+            {% endfor %}
+        </div>
+
+        <form method="get" action="{{ path('admin_products') }}" style="display: flex; gap: 8px; margin: 0;">
+            <input type="hidden" name="category" value="{{ categoryFilter }}">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search products..."
+                   style="padding: 7px 12px; background: #181818; border: 1px solid #333; color: #fff; border-radius: 6px; font-size: 12px;">
+            <button type="submit" class="btn-admin-primary" style="padding: 7px 14px; font-size: 12px;">Search</button>
+            {% if search != '' %}
+                <a href="{{ path('admin_products', {category: categoryFilter}) }}" class="btn-admin-outline" style="padding: 7px 10px; font-size: 12px;">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- PRODUCTS TABLE -->
+<div class="admin-panel-card" style="padding: 0; overflow: hidden;">
+    <div class="orders-table-wrap">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>ITEM</th>
+                    <th>CATEGORY</th>
+                    <th>PRICE</th>
+                    <th>STOCK</th>
+                    <th>CREATED BY</th>
+                    <th>STATUS</th>
+                    <th style="text-align: right;">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if products is empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #555;">
+                            No products found matching your filter.
+                        </td>
+                    </tr>
+                {% else %}
+                    {% for p in products %}
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <img src="{{ asset('assets/' ~ p.image) }}" alt="{{ p.name }}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+                                    <div>
+                                        <strong style="color: #fff; font-size: 14px;">{{ p.name }}</strong>
+                                        <p style="color: #888; font-size: 11px; margin: 2px 0 0; max-width: 250px;">{{ p.description }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="font-size: 11px; color: var(--green); background: rgba(0,212,20,0.1); border: 1px solid rgba(0,212,20,0.3); padding: 3px 8px; border-radius: 6px;">
+                                    {{ p.category ? p.category.categoryname : 'Uncategorized' }}
+                                </span>
+                            </td>
+                            <td><strong style="color: #ffd700; font-size: 14px;">₱{{ p.price|number_format(2) }}</strong></td>
+                            <td>{{ p.stock }} units</td>
+                            <td>
+                                {% if p.createdBy %}
+                                    <span style="font-size: 11px; color: {{ p.createdBy.role == 'admin' ? '#00d414' : '#ffd700' }}; font-weight: 700;">
+                                        {{ p.createdBy.username }} ({{ p.createdBy.role|upper }})
+                                    </span>
+                                {% else %}
+                                    <span style="font-size: 11px; color: #888;">System Admin</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="status-badge {{ p.isActive ? 'completed' : 'cancelled' }}">
+                                    {{ p.isActive ? 'Active' : 'Disabled' }}
+                                </span>
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <div class="action-cell" style="justify-content: flex-end; gap: 6px;">
+                                    <!-- Edit Button -->
+                                    <button type="button" class="btn-admin-outline" 
+                                            onclick="openEditProductModal({{ p.id }}, '{{ csrf_token('admin_product_edit_' ~ p.id) }}', '{{ p.name|e('js') }}', '{{ p.category ? p.category.categoryname|e('js') : 'Coffee' }}', '{{ p.price }}', {{ p.stock }}, '{{ p.image|e('js') }}', '{{ p.description|e('js') }}', {{ p.isActive ? 'true' : 'false' }})"
+                                            style="padding: 5px 9px; font-size: 11px;">
+                                        ✏️ Edit
+                                    </button>
+
+                                    <!-- Toggle Active -->
+                                    <form method="post" action="{{ path('admin_product_toggle', {id: p.id}) }}" style="display:inline; margin:0;">
+                                        <button type="submit" class="btn-admin-outline" style="padding: 5px 8px; font-size: 11px;">
+                                            {{ p.isActive ? 'Disable' : 'Enable' }}
+                                        </button>
+                                    </form>
+
+                                    <!-- Delete Button with Confirmation -->
+                                    <form method="post" action="{{ path('admin_product_delete', {id: p.id}) }}" 
+                                          style="display:inline; margin:0;" 
+                                          onsubmit="return confirm('MANDATORY CONFIRMATION:\nAre you sure you want to permanently delete \'{{ p.name }}\'?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_product_delete_' ~ p.id) }}">
+                                        <button type="submit" class="btn-admin-danger" style="padding: 5px 8px; font-size: 11px;">🗑️</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div id="addModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #141414; border: 1px solid #333; border-radius: 14px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 12px;">
+            <h2 style="color: #fff; margin: 0; font-size: 18px;">➕ Add New Product</h2>
+            <button type="button" onclick="closeAddModal()" style="background: none; border: none; color: #888; font-size: 22px; cursor: pointer;">&times;</button>
+        </div>
+        <form method="post" action="{{ path('admin_product_add') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('admin_product_add') }}">
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">PRODUCT NAME *</label>
+                <input type="text" name="product_name" required placeholder="e.g. Spanish Latte" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">CATEGORY *</label>
+                <select name="category" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <option value="Coffee" selected>Coffee</option>
+                    <option value="Non-Coffee">Non-Coffee</option>
+                    <option value="Pastries">Pastries</option>
+                    <option value="Meals">Meals</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">PRICE (₱) *</label>
+                    <input type="number" step="0.01" name="price" value="120.00" required style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                </div>
+                <div>
+                    <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">STOCK QUANTITY *</label>
+                    <input type="number" name="stock" value="50" required style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">IMAGE FILENAME</label>
+                <select name="image" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <option value="menu-iced-coffee.png">menu-iced-coffee.png</option>
+                    <option value="menu-matcha.png">menu-matcha.png</option>
+                    <option value="menu-cake.png">menu-cake.png</option>
+                    <option value="menu-pasta.png">menu-pasta.png</option>
+                    <option value="hero-coffee.png">hero-coffee.png</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">DESCRIPTION</label>
+                <textarea name="description" rows="3" placeholder="Taste profile, roast notes, allergens..." style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-admin-outline" onclick="closeAddModal()" style="padding: 10px 16px;">Cancel</button>
+                <button type="submit" class="btn-admin-primary" style="padding: 10px 20px;">Save Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT PRODUCT MODAL -->
+<div id="editProductModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #141414; border: 1px solid #333; border-radius: 14px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 12px;">
+            <h2 style="color: #fff; margin: 0; font-size: 18px;">✏️ Edit Product Details</h2>
+            <button type="button" onclick="closeEditModal()" style="background: none; border: none; color: #888; font-size: 22px; cursor: pointer;">&times;</button>
+        </div>
+        <form id="editProductForm" method="post" action="">
+            <input type="hidden" name="_token" id="editProductCsrfToken" value="">
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">PRODUCT NAME *</label>
+                <input type="text" name="product_name" id="editProductName" required style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">CATEGORY *</label>
+                <select name="category" id="editProductCategory" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <option value="Coffee">Coffee</option>
+                    <option value="Non-Coffee">Non-Coffee</option>
+                    <option value="Pastries">Pastries</option>
+                    <option value="Meals">Meals</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">PRICE (₱) *</label>
+                    <input type="number" step="0.01" name="price" id="editProductPrice" required style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                </div>
+                <div>
+                    <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">STOCK QUANTITY *</label>
+                    <input type="number" name="stock" id="editProductStock" required style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">IMAGE FILENAME</label>
+                <select name="image" id="editProductImage" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <option value="menu-iced-coffee.png">menu-iced-coffee.png</option>
+                    <option value="menu-matcha.png">menu-matcha.png</option>
+                    <option value="menu-cake.png">menu-cake.png</option>
+                    <option value="menu-pasta.png">menu-pasta.png</option>
+                    <option value="hero-coffee.png">hero-coffee.png</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">DESCRIPTION</label>
+                <textarea name="description" id="editProductDescription" rows="3" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;"></textarea>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">STOREFRONT VISIBILITY</label>
+                <select name="is_active" id="editProductIsActive" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <option value="1">Active (Visible in Storefront)</option>
+                    <option value="0">Disabled (Hidden)</option>
+                </select>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-admin-outline" onclick="closeEditModal()" style="padding: 10px 16px;">Cancel</button>
+                <button type="submit" class="btn-admin-primary" style="padding: 10px 20px;">Update Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAddModal() {
+    document.getElementById('addModal').style.display = 'flex';
+}
+function closeAddModal() {
+    document.getElementById('addModal').style.display = 'none';
+}
+function openEditProductModal(id, token, name, category, price, stock, image, description, isActive) {
+    const form = document.getElementById('editProductForm');
+    form.action = "{{ path('admin_products') }}/" + id + "/edit";
+    document.getElementById('editProductCsrfToken').value = token;
+    document.getElementById('editProductName').value = name;
+    document.getElementById('editProductCategory').value = category;
+    document.getElementById('editProductPrice').value = price;
+    document.getElementById('editProductStock').value = stock;
+    document.getElementById('editProductImage').value = image;
+    document.getElementById('editProductDescription').value = description;
+    document.getElementById('editProductIsActive').value = isActive ? "1" : "0";
+    document.getElementById('editProductModal').style.display = 'flex';
+}
+function closeEditModal() {
+    document.getElementById('editProductModal').style.display = 'none';
+}
+</script>
+{% endblock %}

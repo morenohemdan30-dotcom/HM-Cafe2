@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HM Café | Create Account{% endblock %}
+
+{% block body %}
+<section style="padding: 120px 7% 80px; min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div style="width: 100%; max-width: 440px; background: #111; border: 1px solid #222; border-radius: 16px; padding: 40px;">
+        <div style="text-align: center; margin-bottom: 25px;">
+            <img src="{{ asset('assets/logo.png') }}" alt="HM Café" style="width: 50px; height: 50px; margin-bottom: 10px;" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+            <h2 style="color: #fff; margin: 0 0 6px;">Join HM Café</h2>
+            <p style="color: #888; font-size: 13px; margin: 0;">Create an account to track orders &amp; book tables</p>
+        </div>
+
+        <form method="post" action="{{ path('app_register') }}">
+            <div style="margin-bottom: 18px;">
+                <label style="color:#aaa; font-size:12px; display:block; margin-bottom:6px;">USERNAME</label>
+                <input type="text" name="username" required 
+                       style="width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label style="color:#aaa; font-size:12px; display:block; margin-bottom:6px;">EMAIL ADDRESS</label>
+                <input type="email" name="email" required 
+                       style="width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label style="color:#aaa; font-size:12px; display:block; margin-bottom:6px;">PASSWORD</label>
+                <input type="password" name="password" required 
+                       style="width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="color:#aaa; font-size:12px; display:block; margin-bottom:6px;">CONFIRM PASSWORD</label>
+                <input type="password" name="confirm_password" required 
+                       style="width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;">
+            </div>
+
+            <button type="submit" class="hero-btn green-btn" style="width:100%; padding:14px; border:none; cursor:pointer; font-size:14px;">
+                CREATE ACCOUNT
+            </button>
+
+            <div style="text-align: center; margin-top: 20px; font-size: 13px; color: #888;">
+                Already have an account? 
+                <a href="{{ path('app_login') }}" style="color: var(--green); text-decoration: none; font-weight: bold;">Log in</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

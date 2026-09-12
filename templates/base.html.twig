@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HM Café | Coffee Connect Enjoy{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('style.css') }}?v=2.1">
+    <link rel="stylesheet" href="{{ asset('innovation.css') }}?v=2.1">
+    <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 95px;
+        }
+        body:not(.admin-body) {
+            padding-top: 85px !important;
+        }
+        @media (max-width: 900px) {
+            html { scroll-padding-top: 75px; }
+            body:not(.admin-body) { padding-top: 75px !important; }
+        }
+        .page {
+            overflow-x: clip !important;
+            overflow-y: visible !important;
+        }
+        /* GUARANTEED PERSISTENT NAVBAR - NEVER DISAPPEARS */
+        .header {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            z-index: 999999 !important;
+            background: rgba(0, 0, 0, 0.96) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border-bottom: 1px solid rgba(0, 212, 20, 0.25) !important;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.7) !important;
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .main-nav {
+            display: flex !important;
+        }
+        @media (max-width: 900px) {
+            .main-nav:not(.show) {
+                display: none !important;
+            }
+        }
+        .main-nav a.active {
+            color: #00d414 !important;
+            text-shadow: 0 0 10px rgba(0, 212, 20, 0.5);
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <div class="page">
+        {% include 'layout/navigation.html.twig' %}
+
+        {% for label, messages in app.flashes %}
+            <div style="padding: 15px 5% 0; max-width: 1200px; margin: 0 auto;">
+                {% for message in messages %}
+                    <div class="form-message {{ label }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        {% block body %}{% endblock %}
+
+        {% include 'layout/footer.html.twig' %}
+    </div>
+
+    <script src="{{ asset('script.js') }}?v=2.1"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

@@ -1,18 +1,20 @@
-# Operating System Files
-.DS_Store
-Thumbs.db
-desktop.ini
 
-# IDE & Editor Files
-.idea/
-*.sublime-workspace
-*.sublime-project
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
 
-# Environment & Config Overrides
-.env
-.env.local
-*.log
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
 
-# Temporary and Cache files
-*.tmp
-*.bak
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###

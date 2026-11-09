@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HM Café | Menu & Shop{% endblock %}
+
+{% block body %}
+<section class="menu-section" style="padding-top: 120px; min-height: 80vh;">
+    <div class="section-title">
+        <span></span>
+        <h2>OUR <strong>MENU &amp; SHOP</strong></h2>
+        <span></span>
+    </div>
+
+    <!-- Category Filters & Search -->
+    <div style="max-width: 1100px; margin: 0 auto 30px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            {% for cat in ['All', 'Coffee', 'Non-Coffee', 'Pastries', 'Meals'] %}
+                <a href="{{ path('app_shop', {category: cat, search: searchTerm}) }}" 
+                   class="hero-btn {{ selectedCategory == cat ? 'green-btn' : 'outline-btn' }}" 
+                   style="padding: 8px 16px; font-size: 12px;">
+                    {{ cat|upper }}
+                </a>
+            {% endfor %}
+        </div>
+
+        <form method="get" action="{{ path('app_shop') }}" style="display: flex; gap: 8px; margin: 0;">
+            <input type="hidden" name="category" value="{{ selectedCategory }}">
+            <input type="text" name="search" value="{{ searchTerm }}" placeholder="Search drinks, cakes..." 
+                   style="padding: 8px 14px; background: #141414; border: 1px solid #333; color: #fff; border-radius: 20px; font-size: 13px;">
+            <button type="submit" class="hero-btn green-btn" style="padding: 8px 14px; font-size: 12px; border: none; cursor: pointer;">🔍</button>
+        </form>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="menu-grid">
+        {% if products is empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: #777;">
+                <h3>No products found matching your search.</h3>
+                <a href="{{ path('app_shop') }}" class="hero-btn outline-btn" style="margin-top: 15px;">VIEW ALL PRODUCTS</a>
+            </div>
+        {% else %}
+            {% for product in products %}
+                <div class="menu-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <img src="{{ asset('assets/' ~ product.image) }}" alt="{{ product.name }}" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+                        <div class="menu-content">
+                            <h3>{{ product.name }}</h3>
+                            <p>{{ product.description }}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                                <div class="price">₱{{ product.price|number_format(2) }}</div>
+                                <span style="font-size: 11px; color: var(--green); background: rgba(0,212,20,0.1); padding: 3px 8px; border-radius: 6px;">
+                                    {{ product.category }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 0 20px 20px;">
+                        {% if app.user %}
+                            <form method="post" action="{{ path('app_shop') }}" style="margin: 0;">
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 8px; margin-bottom: 8px;">
+                                    <select name="dining_option" style="padding: 6px 8px; background: #1a1a1a; border: 1px solid #333; color: #ccc; border-radius: 6px; font-size: 11px;">
+                                        <option value="Dine-in">🍽️ Dine-in</option>
+                                        <option value="Takeout">🛍️ Takeout</option>
+                                    </select>
+                                    <select name="payment_method" style="padding: 6px 8px; background: #1a1a1a; border: 1px solid #333; color: #ccc; border-radius: 6px; font-size: 11px;">
+                                        <option value="Cash on Counter">💵 Cash</option>
+                                        <option value="GCash">📱 GCash</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="number" name="quantity" value="1" min="1" max="10" style="width: 55px; padding: 7px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 6px; text-align: center; font-size: 12px;">
+                                    <button type="submit" class="hero-btn green-btn" style="flex: 1; padding: 7px 12px; font-size: 11px; border: none; cursor: pointer; text-align: center; justify-content: center;">
+                                        ⚡ ORDER NOW
+                                    </button>
+                                </div>
+                            </form>
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="hero-btn outline-btn" style="display: block; text-align: center; padding: 8px; font-size: 11px; text-decoration: none;">
+                                🔒 Log in to Order
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

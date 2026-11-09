@@ -1,0 +1,411 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HM Café | Good Coffee Good Vibes Good Moments{% endblock %}
+
+{% block body %}
+<!-- HOME / HERO -->
+<section id="home" class="hero">
+    <div class="hero-content">
+        <div class="hero-title">
+            <h1>GOOD COFFEE</h1>
+            <h1>GOOD VIBES</h1>
+            <h1 class="green-text">GOOD MOMENTS</h1>
+        </div>
+        <p class="hero-description">
+            Savor your favorite coffee, enjoy delicious treats, and make every moment special at HM Café.
+        </p>
+        <div class="hero-buttons">
+            <a href="#menu" class="hero-btn green-btn">VIEW MENU</a>
+            <a href="#contact" class="hero-btn outline-btn">VISIT US</a>
+        </div>
+    </div>
+
+    <div class="hero-image">
+        <img src="{{ asset('assets/hero-coffee.png') }}" alt="HM Café Cup & Coffee Beans">
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+    <div class="feature">
+        <div class="feature-icon">☕</div>
+        <div>
+            <h3>PREMIUM COFFEE</h3>
+            <p>Made from<br>quality beans</p>
+        </div>
+    </div>
+    <div class="feature">
+        <div class="feature-icon">🪑</div>
+        <div>
+            <h3>COZY PLACE</h3>
+            <p>Comfortable<br>and relaxing</p>
+        </div>
+    </div>
+    <div class="feature">
+        <div class="feature-icon">💚</div>
+        <div>
+            <h3>FRESH &amp; ORGANIC</h3>
+            <p>Fresh organic<br>ingredients</p>
+        </div>
+    </div>
+    <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <div>
+            <h3>FAST SERVICE</h3>
+            <p>Quick &amp; friendly<br>service</p>
+        </div>
+    </div>
+</section>
+
+<!-- ABOUT US SECTION -->
+<section id="about" class="about-section">
+    <div class="about-intro">
+        <div class="about-label">OUR STORY</div>
+        <div class="about-title">CRAFTED WITH <span>PASSION</span></div>
+        <div class="small-green-line"></div>
+        <p>
+            Founded on the belief that a cup of coffee is more than just a morning routine, 
+            HM Café is a warm sanctuary for thinkers, creators, and coffee lovers alike.
+        </p>
+        <p>
+            We carefully source 100% ethically grown Arabica and Robusta beans from local and international farms, roasting each batch to bring out complex aromas and rich, velvety notes.
+        </p>
+        <div style="margin-top: 25px;">
+            <a href="{{ path('app_shop') }}" class="hero-btn green-btn">VIEW MENU &amp; SHOP</a>
+            <a href="{{ path('app_book') }}" class="hero-btn outline-btn" style="margin-left: 10px;">BOOK A TABLE</a>
+        </div>
+    </div>
+
+    <div class="about-cards">
+        <div class="about-card">
+            <div class="about-icon">☕</div>
+            <h3>OUR MISSION</h3>
+            <p>To serve exceptionally brewed coffee and delicious artisanal food while creating unforgettable hospitality experiences for our neighborhood.</p>
+        </div>
+        <div class="about-card">
+            <div class="about-icon">🌿</div>
+            <h3>OUR VISION</h3>
+            <p>To become the premier local café recognized for environmental sustainability, artisan barista craftsmanship, and community connection.</p>
+        </div>
+        <div class="about-card">
+            <div class="about-icon people">👥</div>
+            <h3>OUR CORE VALUES</h3>
+            <p class="values">
+                • <strong>Quality:</strong> Perfection in every cup<br>
+                • <strong>Passion:</strong> Dedication to the craft<br>
+                • <strong>Community:</strong> A welcoming space for all<br>
+                • <strong>Integrity:</strong> Ethical and honest sourcing
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- LIVE STATS STRIP -->
+<section class="reveal" style="padding: 50px 7%; background: #0a0a0a; border-top: 1px solid #1a1a1a; border-bottom: 1px solid #1a1a1a;">
+    <div style="max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+        <div>
+            <div style="font-size: 42px; font-weight: 900; color: var(--green);">{{ totalCustomers }}+</div>
+            <div style="font-size: 12px; color: #888; letter-spacing: 2px; margin-top: 6px; text-transform: uppercase;">Happy Customers</div>
+        </div>
+        <div>
+            <div style="font-size: 42px; font-weight: 900; color: var(--green);">{{ completedOrders }}+</div>
+            <div style="font-size: 12px; color: #888; letter-spacing: 2px; margin-top: 6px; text-transform: uppercase;">Orders Completed</div>
+        </div>
+        <div>
+            <div style="font-size: 42px; font-weight: 900; color: var(--green);">{{ totalReviews }}</div>
+            <div style="font-size: 12px; color: #888; letter-spacing: 2px; margin-top: 6px; text-transform: uppercase;">Community Reviews</div>
+        </div>
+        <div>
+            <div style="font-size: 42px; font-weight: 900; color: #ffd700;">
+                {{ avgRating > 0 ? avgRating ~ ' ★' : '—' }}
+            </div>
+            <div style="font-size: 12px; color: #888; letter-spacing: 2px; margin-top: 6px; text-transform: uppercase;">Average Rating</div>
+        </div>
+    </div>
+</section>
+
+<!-- POPULAR MENU -->
+<section id="menu" class="menu-section">
+    <div class="section-title">
+        <span></span>
+        <h2>POPULAR <strong>MENU</strong></h2>
+        <span></span>
+    </div>
+
+    <div class="menu-grid">
+        {% if popularProducts is not empty %}
+            {% for product in popularProducts %}
+                <a href="{{ path('app_shop', {product: product.id}) }}" class="menu-card">
+                    <img src="{{ asset('assets/' ~ product.image) }}" alt="{{ product.name }}" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+                    <div class="menu-content">
+                        <h3>{{ product.name }}</h3>
+                        <p>{{ product.description }}</p>
+                        <div class="price">₱{{ product.price|number_format(2) }}</div>
+                    </div>
+                </a>
+            {% endfor %}
+        {% else %}
+            <a href="{{ path('app_shop') }}" class="menu-card">
+                <img src="{{ asset('assets/menu-iced-coffee.png') }}" alt="Iced Spanish Latte" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+                <div class="menu-content">
+                    <h3>Iced Spanish Latte</h3>
+                    <p>Rich espresso layered with sweet condensed milk and creamy chilled fresh milk.</p>
+                    <div class="price">₱140.00</div>
+                </div>
+            </a>
+            <a href="{{ path('app_shop') }}" class="menu-card">
+                <img src="{{ asset('assets/hero-coffee.png') }}" alt="Signature Roast Americano" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+                <div class="menu-content">
+                    <h3>Signature Roast Americano</h3>
+                    <p>Double shot of our ethically sourced Arabica blend over hot mineral water.</p>
+                    <div class="price">₱120.00</div>
+                </div>
+            </a>
+            <a href="{{ path('app_shop') }}" class="menu-card">
+                <img src="{{ asset('assets/menu-matcha.png') }}" alt="Uji Ceremonial Matcha" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+                <div class="menu-content">
+                    <h3>Uji Ceremonial Matcha</h3>
+                    <p>Authentic Japanese stone-ground green tea matcha whisked with fresh milk.</p>
+                    <div class="price">₱160.00</div>
+                </div>
+            </a>
+            <a href="{{ path('app_shop') }}" class="menu-card">
+                <img src="{{ asset('assets/menu-cake.png') }}" alt="Burnt Basque Cheesecake" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+                <div class="menu-content">
+                    <h3>Burnt Basque Cheesecake</h3>
+                    <p>Caramelized crust with a silky, molten cream cheese center.</p>
+                    <div class="price">₱180.00</div>
+                </div>
+            </a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" class="gallery-accordion-section">
+    <div class="section-title gallery-title" style="margin-bottom: 35px; text-align: center;">
+        <span class="title-decor"></span>
+        <h2>CAFÉ <strong style="color: var(--green);">GALLERY</strong></h2>
+        <span class="title-decor"></span>
+    </div>
+
+    <!-- Top Strip (4 Pictures) -->
+    <div class="gallery-accordion-strip">
+        <div class="accordion-panel active">
+            <img src="{{ asset('assets/gallery-03.png') }}" alt="HM Café Neon Lounge">
+        </div>
+        <div class="accordion-panel">
+            <img src="{{ asset('assets/gallery-01.png') }}" alt="HM Café Main Dining">
+        </div>
+        <div class="accordion-panel">
+            <img src="{{ asset('assets/gallery-02.png') }}" alt="HM Café Garden Patio">
+        </div>
+        <div class="accordion-panel">
+            <img src="{{ asset('assets/gallery-04.png') }}" alt="HM Café Study Hub">
+        </div>
+    </div>
+
+    <!-- Bottom Strip (4 Pictures) -->
+    <div class="gallery-accordion-strip" style="margin-top: 14px;">
+        <div class="accordion-panel">
+            <img src="{{ asset('assets/gallery-05.png') }}" alt="HM Café Bakery & Bar">
+        </div>
+        <div class="accordion-panel">
+            <img src="{{ asset('assets/gallery-06.png') }}" alt="HM Café Botanical Conservatory">
+        </div>
+        <div class="accordion-panel active">
+            <img src="{{ asset('assets/gallery-07.png') }}" alt="HM Café Evening Atmosphere">
+        </div>
+        <div class="accordion-panel">
+            <img src="{{ asset('assets/gallery-08.png') }}" alt="HM Café Latte Art">
+        </div>
+    </div>
+</section>
+
+<!-- UPCOMING EVENTS & COMMUNITY -->
+<section id="events" class="events-section">
+    <div class="events-heading">
+        <div class="section-label">WHAT'S HAPPENING</div>
+        <h2>UPCOMING <span>EVENTS</span></h2>
+        <p>Join us for weekend coffee tastings, barista workshops, and cozy acoustic nights at HM Café.</p>
+    </div>
+
+    <div class="events-container">
+        <!-- Event 1 (Featured) -->
+        <article class="event-card featured-event">
+            <div class="event-image">
+                <img src="{{ asset('assets/gallery-03.png') }}" alt="Artisan Coffee Cupping">
+                <div class="event-date">
+                    <strong>15</strong>
+                    <small>DEC</small>
+                </div>
+            </div>
+            <div class="event-content">
+                <span class="event-tag">SPECIALTY COFFEE</span>
+                <h3>Single-Origin Cupping &amp; Tasting</h3>
+                <p>Taste freshly roasted single-origin coffees from Ethiopia, Colombia, and Bukidnon. Guided flavor notes and brewing profiles.</p>
+                <div class="event-info">
+                    <div><span>⏰</span> 2:00 PM – 4:30 PM</div>
+                    <div><span>📍</span> Brew Bar Tasting Room</div>
+                </div>
+                <a href="{{ path('app_book') }}" class="event-button">
+                    <span>RESERVE TASTING SEAT</span>
+                    <span>&rarr;</span>
+                </a>
+            </div>
+        </article>
+
+        <!-- Event 2 -->
+        <article class="event-card">
+            <div class="event-image">
+                <img src="{{ asset('assets/gallery-01.png') }}" alt="Artisan Latte Art Workshop">
+                <div class="event-date">
+                    <strong>20</strong>
+                    <small>DEC</small>
+                </div>
+            </div>
+            <div class="event-content">
+                <span class="event-tag">BARISTA WORKSHOP</span>
+                <h3>Latte Art Masterclass</h3>
+                <p>Learn the fine art of pulling the perfect espresso shot and pouring signature latte rosettas with HM Café's head barista.</p>
+                <div class="event-info">
+                    <div><span>⏰</span> 4:00 PM – 6:30 PM</div>
+                    <div><span>📍</span> Artisan Espresso Bar</div>
+                </div>
+                <a href="{{ path('app_book') }}" class="event-button">
+                    <span>RESERVE SEAT</span>
+                    <span>&rarr;</span>
+                </a>
+            </div>
+        </article>
+
+        <!-- Event 3 -->
+        <article class="event-card">
+            <div class="event-image">
+                <img src="{{ asset('assets/gallery-04.png') }}" alt="Acoustic Sunset Night">
+                <div class="event-date">
+                    <strong>28</strong>
+                    <small>DEC</small>
+                </div>
+            </div>
+            <div class="event-content">
+                <span class="event-tag">LIVE MUSIC</span>
+                <h3>Acoustic Sunset &amp; Brews</h3>
+                <p>Unwind with intimate acoustic performances, freshly baked pastries, and our signature iced coffee flights in the garden patio.</p>
+                <div class="event-info">
+                    <div><span>⏰</span> 6:00 PM – 9:30 PM</div>
+                    <div><span>📍</span> Garden Patio Lounge</div>
+                </div>
+                <a href="{{ path('app_book') }}" class="event-button">
+                    <span>BOOK A TABLE</span>
+                    <span>&rarr;</span>
+                </a>
+            </div>
+        </article>
+    </div>
+
+    <div class="events-footer" style="margin-top: 45px; display: flex; align-items: center; justify-content: space-between; background: #0b0b0b; border: 1px solid #222; border-radius: 14px; padding: 25px 35px; gap: 20px;">
+        <div>
+            <strong style="font-size: 18px;">WANT TO HOST A <span>PRIVATE GATHERING</span>?</strong>
+            <p style="margin: 6px 0 0; color: #888; font-size: 13px;">Reserve our cozy café corners or patio for private workshops, book clubs, birthdays, and meetings.</p>
+        </div>
+        <a href="#contact" class="events-contact-button">
+            <span>INQUIRE NOW</span>
+            <span>&rarr;</span>
+        </a>
+    </div>
+</section>
+
+<!-- CONTACT SECTION -->
+<section id="contact" class="contact-section" style="padding: 80px 7% 100px; position: relative; background: linear-gradient(180deg, rgba(10,10,10,0) 0%, rgba(15,25,15,0.3) 100%);">
+    <div style="max-width: 1150px; margin: 0 auto;">
+        <div class="section-title" style="margin-bottom: 45px;">
+            <span class="title-decor"></span>
+            <h2>GET IN <strong style="color: var(--green);">TOUCH</strong></h2>
+            <span class="title-decor"></span>
+        </div>
+
+        <div class="contact-container-grid">
+            <!-- Left Info Card -->
+            <div class="contact-info-panel">
+                <div class="contact-badge-open">
+                    <span class="pulse-dot"></span> OPEN TODAY &bull; 7:00 AM – 10:00 PM
+                </div>
+
+                <h3 class="contact-panel-title">We’d love to welcome you to <span>HM Café</span></h3>
+                <p class="contact-panel-desc">
+                    Whether you have questions about our roasted beans, private event reservations, or feedback on your coffee experience, reach out to us anytime.
+                </p>
+
+                <div class="contact-details-list">
+                    <div class="contact-detail-item">
+                        <div class="contact-icon-box">📍</div>
+                        <div>
+                            <strong>Our Sanctuary</strong>
+                            <p>Ground Floor, HM Tower, Coffee Boulevard, Metro Manila</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-detail-item">
+                        <div class="contact-icon-box">📞</div>
+                        <div>
+                            <strong>Direct Hotline</strong>
+                            <p>(02) 8123-4567 &bull; +63 917 123 4567</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-detail-item">
+                        <div class="contact-icon-box">✉️</div>
+                        <div>
+                            <strong>Email Inquiries</strong>
+                            <p>hello@hmcafe.ph &bull; reservations@hmcafe.ph</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-perks-strip">
+                    <span class="perk-pill">⚡ High-Speed Fiber Wi-Fi</span>
+                    <span class="perk-pill">🔌 Power Outlets at Every Table</span>
+                    <span class="perk-pill">🐾 Pet-Friendly Patio</span>
+                </div>
+            </div>
+
+            <!-- Right Form Card -->
+            <div class="contact-form-panel">
+                <form method="post" action="{{ path('app_home') }}#contact" class="modern-contact-form">
+                    <input type="hidden" name="form_type" value="contact">
+
+                    <h4 style="margin: 0 0 20px; font-size: 18px; color: #fff; display: flex; align-items: center; gap: 8px;">
+                        <span>💬</span> Send Us a Direct Message
+                    </h4>
+
+                    <div class="form-row-dual">
+                        <div class="form-input-group">
+                            <label>YOUR NAME</label>
+                            <input type="text" name="name" required placeholder="e.g. Maria Santos" class="glass-input">
+                        </div>
+                        <div class="form-input-group">
+                            <label>EMAIL ADDRESS</label>
+                            <input type="email" name="email" required placeholder="e.g. maria@example.com" class="glass-input">
+                        </div>
+                    </div>
+
+                    <div class="form-input-group">
+                        <label>SUBJECT / INQUIRY TOPIC</label>
+                        <input type="text" name="subject" required placeholder="e.g. Table Booking / Coffee Beans / Catering" class="glass-input">
+                    </div>
+
+                    <div class="form-input-group">
+                        <label>YOUR MESSAGE</label>
+                        <textarea name="message" rows="4" required placeholder="Tell us how we can help you make your visit special..." class="glass-input" style="resize: vertical;"></textarea>
+                    </div>
+
+                    <button type="submit" class="contact-submit-btn">
+                        <span>✉️</span> SEND MESSAGE NOW
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

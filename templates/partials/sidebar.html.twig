@@ -1,0 +1,71 @@
+<div class="admin-sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-header">
+        <img src="{{ asset('assets/logo.png') }}" alt="HM Café" class="brand-logo" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+        <a href="{{ path('app_dashboard') }}" class="brand-text">
+            HM <span>Café</span>
+            <div><span class="badge-admin">CONTROL PANEL</span></div>
+        </a>
+        <button type="button" class="admin-sidebar-close" id="sidebarClose" aria-label="Close Sidebar">&times;</button>
+    </div>
+
+    <nav class="admin-sidebar-nav">
+        <div class="admin-nav-section-title">Overview</div>
+        <a href="{{ path('app_dashboard') }}" class="admin-nav-item {{ (activePage|default('dashboard')) == 'dashboard' ? 'active' : '' }}">
+            <span class="nav-icon">⚡</span>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="admin-nav-section-title">Operations</div>
+        <a href="{{ path('admin_orders') }}" class="admin-nav-item {{ (activePage|default('')) == 'requests' ? 'active' : '' }}">
+            <span class="nav-icon">📋</span>
+            <span>Requests &amp; Orders</span>
+        </a>
+
+        <a href="{{ path('admin_bookings') }}" class="admin-nav-item {{ (activePage|default('')) == 'bookings' ? 'active' : '' }}">
+            <span class="nav-icon">📅</span>
+            <span>Table Bookings</span>
+        </a>
+
+        <a href="{{ path('admin_messages') }}" class="admin-nav-item {{ (activePage|default('')) == 'messages' ? 'active' : '' }}">
+            <span class="nav-icon">💬</span>
+            <span>Messages &amp; Inquiries</span>
+        </a>
+
+        <div class="admin-nav-section-title">Management</div>
+        <a href="{{ path('admin_products') }}" class="admin-nav-item {{ (activePage|default('')) == 'products' ? 'active' : '' }}">
+            <span class="nav-icon">🍵</span>
+            <span>Menu &amp; Products</span>
+        </a>
+
+        <a href="{{ path('admin_clients') }}" class="admin-nav-item {{ (activePage|default('')) == 'clients' ? 'active' : '' }}">
+            <span class="nav-icon">👥</span>
+            <span>Clients Directory</span>
+        </a>
+
+        <a href="{{ path('admin_settings') }}" class="admin-nav-item {{ (activePage|default('')) == 'settings' ? 'active' : '' }}">
+            <span class="nav-icon">⚙️</span>
+            <span>System Settings</span>
+        </a>
+
+        <div class="admin-nav-section-title">External</div>
+        <a href="{{ path('app_home') }}" target="_blank" class="admin-nav-item">
+            <span class="nav-icon">🛒</span>
+            <span>Live Storefront ↗</span>
+        </a>
+    </nav>
+
+    <div class="admin-sidebar-footer">
+        <div class="admin-user-card">
+            <div class="admin-user-avatar">{{ app.user ? app.user.userIdentifier|slice(0, 2)|upper : 'AD' }}</div>
+            <div class="admin-user-info">
+                <div class="admin-user-name">{{ app.user ? app.user.userIdentifier : 'Administrator' }}</div>
+                <div class="admin-user-role">{{ app.user ? app.user.role|upper : 'ADMINISTRATOR' }}</div>
+            </div>
+        </div>
+        <a href="{{ path('app_logout') }}" class="admin-logout-btn" style="text-decoration: none;">
+            <span>🚪</span> Sign Out
+        </a>
+    </div>
+</aside>

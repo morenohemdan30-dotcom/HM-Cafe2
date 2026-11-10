@@ -1,0 +1,74 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}HM Café | Customer Messages{% endblock %}
+
+{% block body %}
+<div class="admin-welcome">
+    <h1>💬 Customer Inquiries &amp; Messages</h1>
+    <p>Review customer feedback, table inquiries, and messages sent via the website contact form.</p>
+</div>
+
+<!-- SEARCH & MESSAGES TABLE -->
+<div class="admin-panel-card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 18px 24px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <h2 style="margin: 0; font-size: 16px;">Inquiries List ({{ messages|length }})</h2>
+        <form method="get" action="{{ path('admin_messages') }}" style="display: flex; gap: 8px; margin: 0;">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search sender, subject..."
+                   style="padding: 7px 12px; background: #181818; border: 1px solid #333; color: #fff; border-radius: 6px; font-size: 12px;">
+            <button type="submit" class="btn-admin-primary" style="padding: 7px 14px; font-size: 12px;">Search</button>
+            {% if search != '' %}
+                <a href="{{ path('admin_messages') }}" class="btn-admin-outline" style="padding: 7px 10px; font-size: 12px;">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="orders-table-wrap">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>SENDER</th>
+                    <th>EMAIL</th>
+                    <th>SUBJECT &amp; MESSAGE</th>
+                    <th>RECEIVED</th>
+                    <th style="text-align: right;">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if messages is empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #555;">
+                            No messages found.
+                        </td>
+                    </tr>
+                {% else %}
+                    {% for m in messages %}
+                        <tr>
+                            <td>
+                                <strong style="color: #fff;">{{ m.name }}</strong>
+                            </td>
+                            <td>{{ m.email }}</td>
+                            <td>
+                                <strong style="color: var(--green); display: block; margin-bottom: 3px;">{{ m.subject }}</strong>
+                                <p style="color: #bbb; font-size: 12px; margin: 0; max-width: 400px; line-height: 1.4;">{{ m.message }}</p>
+                            </td>
+                            <td style="font-size: 12px; color: #888;">{{ m.createdAt|date('M d, Y h:i A') }}</td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <div class="action-cell" style="justify-content: flex-end;">
+                                    <a href="mailto:{{ m.email }}?subject=Re: {{ m.subject|url_encode }}" class="btn-admin-outline" style="text-decoration:none; padding: 5px 8px; font-size: 11px;">
+                                        ✉️ Reply
+                                    </a>
+                                    <form method="post" action="{{ path('admin_messages', {search: search}) }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete this message?');">
+                                        <input type="hidden" name="action" value="delete_message">
+                                        <input type="hidden" name="message_id" value="{{ m.id }}">
+                                        <button type="submit" class="btn-admin-danger" style="padding: 5px 8px; font-size: 11px;">🗑️</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

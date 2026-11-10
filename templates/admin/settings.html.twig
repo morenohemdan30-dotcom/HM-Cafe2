@@ -1,0 +1,105 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}HM Café | System Settings & Profile{% endblock %}
+
+{% block body %}
+<div class="admin-welcome">
+    <h1>⚙️ System &amp; Administrator Account</h1>
+    <p>Manage your administrator profile, change security password, and inspect system-wide diagnostics.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+    <!-- ADMIN PROFILE OVERVIEW -->
+    <div class="admin-panel-card">
+        <h2 style="margin-top: 0; font-size: 16px; border-bottom: 1px solid #222; padding-bottom: 12px; color: #fff;">
+            👤 Administrator Account Profile
+        </h2>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-size: 11px; color: #888; display: block; font-weight: 700;">USERNAME</span>
+            <strong style="font-size: 16px; color: #fff;">{{ user ? user.username : 'admin' }}</strong>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-size: 11px; color: #888; display: block; font-weight: 700;">CURRENT ROLE</span>
+            <span style="display: inline-block; font-size: 11px; background: rgba(0,212,20,0.15); color: #00d414; border: 1px solid #00d414; padding: 2px 8px; border-radius: 4px; font-weight: 700;">
+                ADMINISTRATOR (ROLE_ADMIN)
+            </span>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-size: 11px; color: #888; display: block; font-weight: 700;">STATUS</span>
+            <span style="display: inline-block; font-size: 11px; background: rgba(0,212,20,0.1); color: #00d414; border: 1px solid #00d414; padding: 2px 8px; border-radius: 4px; font-weight: 700;">
+                {{ user ? user.status|upper : 'ACTIVE' }}
+            </span>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-size: 11px; color: #888; display: block; font-weight: 700;">ACCOUNT CREATED</span>
+            <span style="color: #ccc; font-size: 13px;">{{ user and user.createdAt ? user.createdAt|date('F d, Y') : 'System Boot' }}</span>
+        </div>
+
+        <form method="post" action="{{ path('admin_settings') }}" style="border-top: 1px solid #222; padding-top: 15px; margin-top: 20px;">
+            <input type="hidden" name="action" value="update_profile">
+            <div style="margin-bottom: 12px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">ADMINISTRATOR EMAIL</label>
+                <input type="email" name="email" value="{{ user ? user.email : '' }}" placeholder="admin@hmcafe.com" 
+                       style="width: 100%; padding: 10px; background: #181818; border: 1px solid #333; color: #fff; border-radius: 6px;">
+            </div>
+            <button type="submit" class="btn-admin-primary" style="width: 100%; padding: 9px;">Save Email</button>
+        </form>
+    </div>
+
+    <!-- CHANGE PASSWORD -->
+    <div class="admin-panel-card">
+        <h2 style="margin-top: 0; font-size: 16px; border-bottom: 1px solid #222; padding-bottom: 12px; color: #fff;">
+            🔒 Change Administrator Password
+        </h2>
+        <form method="post" action="{{ path('admin_password_change') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('admin_password_change') }}">
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">CURRENT PASSWORD *</label>
+                <input type="password" name="current_password" required placeholder="Enter current admin password"
+                       style="width:100%; padding:10px; background:#181818; border:1px solid #333; color:#fff; border-radius:6px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">NEW PASSWORD *</label>
+                <input type="password" name="new_password" required minlength="6" placeholder="Min 6 characters"
+                       style="width:100%; padding:10px; background:#181818; border:1px solid #333; color:#fff; border-radius:6px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">CONFIRM NEW PASSWORD *</label>
+                <input type="password" name="confirm_password" required minlength="6" placeholder="Re-type new password"
+                       style="width:100%; padding:10px; background:#181818; border:1px solid #333; color:#fff; border-radius:6px;">
+            </div>
+            <button type="submit" class="btn-admin-primary" style="width: 100%; padding: 11px;">Update Password</button>
+        </form>
+    </div>
+
+    <!-- SYSTEM DIAGNOSTICS -->
+    <div class="admin-panel-card" style="grid-column: 1 / -1;">
+        <h2 style="margin-top: 0; font-size: 16px; border-bottom: 1px solid #222; padding-bottom: 12px; color: #fff;">
+            ⚡ Security &amp; Environment Diagnostics
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; font-size: 13px;">
+            <div style="background: #141414; padding: 14px; border-radius: 8px; border: 1px solid #222;">
+                <span style="color: #888; font-size: 11px; display: block;">FRAMEWORK</span>
+                <strong style="color: var(--green);">Symfony 8.1 / 7.x (Webapp)</strong>
+            </div>
+            <div style="background: #141414; padding: 14px; border-radius: 8px; border: 1px solid #222;">
+                <span style="color: #888; font-size: 11px; display: block;">PHP RUNTIME</span>
+                <strong style="color: #fff;">PHP {{ constant('PHP_VERSION') }}</strong>
+            </div>
+            <div style="background: #141414; padding: 14px; border-radius: 8px; border: 1px solid #222;">
+                <span style="color: #888; font-size: 11px; display: block;">PASSWORD HASHER</span>
+                <strong style="color: #ffd700;">Bcrypt (Cost 12 / Secure Salt)</strong>
+            </div>
+            <div style="background: #141414; padding: 14px; border-radius: 8px; border: 1px solid #222;">
+                <span style="color: #888; font-size: 11px; display: block;">ACCESS CONTROL</span>
+                <strong style="color: #00d414;">Role Hierarchy (Admin / Staff / User)</strong>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

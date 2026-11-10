@@ -1,0 +1,123 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}HM Café | Table Reservations & Bookings{% endblock %}
+
+{% block body %}
+<div class="admin-welcome">
+    <h1>📅 Table Reservations &amp; Bookings</h1>
+    <p>View and manage all customer table reservation requests. Confirm, cancel, or delete bookings as needed.</p>
+</div>
+
+<!-- STATUS TABS & SEARCH -->
+<div class="admin-panel-card" style="margin-bottom: 20px;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px;">
+        <div class="admin-filter-bar" style="margin-bottom: 0;">
+            <a href="{{ path('admin_bookings', {status: 'all', search: search}) }}" class="admin-filter-tab {{ statusFilter == 'all' ? 'active' : '' }}">
+                ALL ({{ counts.all|default(0) }})
+            </a>
+            <a href="{{ path('admin_bookings', {status: 'Pending', search: search}) }}" class="admin-filter-tab {{ statusFilter == 'Pending' ? 'active' : '' }}">
+                ⏳ PENDING ({{ counts.pending|default(0) }})
+            </a>
+            <a href="{{ path('admin_bookings', {status: 'Confirmed', search: search}) }}" class="admin-filter-tab {{ statusFilter == 'Confirmed' ? 'active' : '' }}">
+                ✅ CONFIRMED ({{ counts.confirmed|default(0) }})
+            </a>
+            <a href="{{ path('admin_bookings', {status: 'Cancelled', search: search}) }}" class="admin-filter-tab {{ statusFilter == 'Cancelled' ? 'active' : '' }}">
+                ❌ CANCELLED ({{ counts.cancelled|default(0) }})
+            </a>
+        </div>
+
+        <form method="get" action="{{ path('admin_bookings') }}" style="display: flex; gap: 8px; margin: 0; align-items: center;">
+            <input type="hidden" name="status" value="{{ statusFilter }}">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search customer, notes..."
+                   style="padding: 7px 12px; background: #181818; border: 1px solid #333; color: #fff; border-radius: 6px; font-size: 12px;">
+            <button type="submit" class="btn-admin-primary" style="padding: 7px 14px; font-size: 12px;">Search</button>
+            {% if search != '' %}
+                <a href="{{ path('admin_bookings', {status: statusFilter}) }}" class="btn-admin-outline" style="padding: 7px 10px; font-size: 12px;">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- BOOKINGS TABLE -->
+<div class="admin-panel-card" style="padding: 0; overflow: hidden;">
+    <div class="orders-table-wrap">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th># REF</th>
+                    <th>CUSTOMER</th>
+                    <th>GUESTS</th>
+                    <th>DATE &amp; TIME</th>
+                    <th>SPECIAL NOTES</th>
+                    <th>STATUS</th>
+                    <th style="text-align: right;">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if bookings is empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #555;">
+                            <div style="font-size: 32px; margin-bottom: 10px;">📅</div>
+                            No reservations found for this filter.
+                        </td>
+                    </tr>
+                {% else %}
+                    {% for b in bookings %}
+                        <tr>
+                            <td>
+                                <span style="color: var(--green); font-weight: 800; background: rgba(0,212,20,0.1); border: 1px solid rgba(0,212,20,0.3); padding: 3px 8px; border-radius: 6px; font-size: 12px;">
+                                    #{{ b.id|format('%04d') }}
+                                </span>
+                            </td>
+                            <td>
+                                <strong style="color: #fff;">{{ b.user ? b.user.username : 'Guest' }}</strong>
+                                <span style="display: block; font-size: 11px; color: #888;">{{ b.user ? b.user.email : '' }}</span>
+                            </td>
+                            <td>
+                                <span style="color: #ffd700; font-weight: 700;">👥 {{ b.guests }} Person{{ b.guests > 1 ? 's' : '' }}</span>
+                            </td>
+                            <td>
+                                <strong style="color: #fff;">{{ b.bookingDate|date('M d, Y') }}</strong>
+                                <span style="display: block; font-size: 11px; color: #aaa;">⏰ {{ b.bookingTime|date('h:i A') }}</span>
+                            </td>
+                            <td>
+                                <span style="color: #bbb; font-size: 12px;">{{ b.notes ? b.notes : '—' }}</span>
+                            </td>
+                            <td>
+                                <span class="status-badge {{ b.status|lower }}">
+                                    {{ b.status }}
+                                </span>
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <div class="action-cell" style="justify-content: flex-end;">
+                                    {% if b.status != 'Confirmed' %}
+                                        <form method="post" action="{{ path('admin_bookings', {status: statusFilter, search: search}) }}" style="display:inline; margin:0;">
+                                            <input type="hidden" name="action" value="update_status">
+                                            <input type="hidden" name="appointment_id" value="{{ b.id }}">
+                                            <input type="hidden" name="status" value="Confirmed">
+                                            <button type="submit" class="btn-admin-primary" style="padding: 5px 8px; font-size: 11px;">✓ Confirm</button>
+                                        </form>
+                                    {% endif %}
+                                    {% if b.status != 'Cancelled' %}
+                                        <form method="post" action="{{ path('admin_bookings', {status: statusFilter, search: search}) }}" style="display:inline; margin:0;">
+                                            <input type="hidden" name="action" value="update_status">
+                                            <input type="hidden" name="appointment_id" value="{{ b.id }}">
+                                            <input type="hidden" name="status" value="Cancelled">
+                                            <button type="submit" class="btn-admin-outline" style="padding: 5px 8px; font-size: 11px; color: #ff5555; border-color: rgba(255,85,85,0.3);">✕ Cancel</button>
+                                        </form>
+                                    {% endif %}
+                                    <form method="post" action="{{ path('admin_bookings', {status: statusFilter, search: search}) }}" style="display:inline; margin:0;" onsubmit="return confirm('Permanently delete reservation #{{ b.id }}?');">
+                                        <input type="hidden" name="action" value="delete_booking">
+                                        <input type="hidden" name="appointment_id" value="{{ b.id }}">
+                                        <button type="submit" class="btn-admin-danger" style="padding: 5px 8px; font-size: 11px;">🗑️</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}HM Café | Requests & Orders{% endblock %}
+
+{% block body %}
+<div class="admin-welcome">
+    <h1>📋 Customer Requests &amp; Orders</h1>
+    <p>Live order queue. Filter by status, search reference numbers or client usernames, and update order fulfillment.</p>
+</div>
+
+<!-- STATUS TABS & SEARCH -->
+<div class="admin-panel-card" style="margin-bottom: 20px;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px;">
+        <div class="admin-filter-bar" style="margin-bottom: 0;">
+            <a href="{{ path('admin_orders', {status: 'all', search: search}) }}" class="admin-filter-tab {{ statusFilter == 'all' ? 'active' : '' }}">
+                ALL ({{ counts.all|default(0) }})
+            </a>
+            <a href="{{ path('admin_orders', {status: 'Pending', search: search}) }}" class="admin-filter-tab {{ statusFilter == 'Pending' ? 'active' : '' }}">
+                ⏳ PENDING ({{ counts.pending|default(0) }})
+            </a>
+            <a href="{{ path('admin_orders', {status: 'Completed', search: search}) }}" class="admin-filter-tab {{ statusFilter == 'Completed' ? 'active' : '' }}">
+                ✅ COMPLETED ({{ counts.completed|default(0) }})
+            </a>
+            <a href="{{ path('admin_orders', {status: 'Cancelled', search: search}) }}" class="admin-filter-tab {{ statusFilter == 'Cancelled' ? 'active' : '' }}">
+                ❌ CANCELLED ({{ counts.cancelled|default(0) }})
+            </a>
+        </div>
+
+        <form method="get" action="{{ path('admin_orders') }}" style="display: flex; gap: 8px; margin: 0; align-items: center;">
+            <input type="hidden" name="status" value="{{ statusFilter }}">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search client, item, ref..."
+                   style="padding: 7px 12px; background: #181818; border: 1px solid #333; color: #fff; border-radius: 6px; font-size: 12px;">
+            <button type="submit" class="btn-admin-primary" style="padding: 7px 14px; font-size: 12px;">Search</button>
+            {% if search != '' %}
+                <a href="{{ path('admin_orders', {status: statusFilter}) }}" class="btn-admin-outline" style="padding: 7px 10px; font-size: 12px;">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- ORDERS TABLE -->
+<div class="admin-panel-card" style="padding: 0; overflow: hidden;">
+    <div class="orders-table-wrap">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>REF #</th>
+                    <th>CLIENT</th>
+                    <th>PRODUCT &amp; DINING</th>
+                    <th>QTY</th>
+                    <th>TOTAL</th>
+                    <th>STATUS</th>
+                    <th>TIME</th>
+                    <th style="text-align: right;">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if orders is empty %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #555;">
+                            <div style="font-size: 32px; margin-bottom: 10px;">📭</div>
+                            No customer requests found for this filter.
+                        </td>
+                    </tr>
+                {% else %}
+                    {% for o in orders %}
+                        <tr>
+                            <td>
+                                <span style="color: var(--green); font-weight: 800; background: rgba(0,212,20,0.1); border: 1px solid rgba(0,212,20,0.3); padding: 3px 8px; border-radius: 6px; font-size: 12px;">
+                                    #{{ o.id|format('%04d') }}
+                                </span>
+                            </td>
+                            <td>
+                                <strong style="color: #fff;">{{ o.user ? o.user.username : 'Guest' }}</strong>
+                                <span style="display: block; font-size: 10px; color: #888;">ID: #{{ o.user ? o.user.id : '—' }}</span>
+                            </td>
+                            <td>
+                                <strong style="color: #fff;">{{ o.product ? o.product.name : 'Unknown' }}</strong>
+                                <span style="display: block; font-size: 11px; color: #aaa; margin-top: 2px;">
+                                    🍽️ {{ o.diningOption }} &bull; 💳 {{ o.paymentMethod }}
+                                </span>
+                            </td>
+                            <td>x{{ o.quantity }}</td>
+                            <td><strong style="color: #ffd700;">₱{{ o.totalPrice|number_format(2) }}</strong></td>
+                            <td>
+                                <span class="status-badge {{ o.status|lower }}">
+                                    {{ o.status }}
+                                </span>
+                            </td>
+                            <td style="font-size: 12px; color: #888;">{{ o.createdAt|date('M d, g:i A') }}</td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <div class="action-cell" style="justify-content: flex-end;">
+                                    {% if o.status != 'Completed' %}
+                                        <form method="post" action="{{ path('admin_orders', {status: statusFilter, search: search}) }}" style="display:inline; margin:0;">
+                                            <input type="hidden" name="action" value="update_status">
+                                            <input type="hidden" name="order_id" value="{{ o.id }}">
+                                            <input type="hidden" name="status" value="Completed">
+                                            <button type="submit" class="btn-admin-primary" style="padding: 5px 8px; font-size: 11px;">✓ Complete</button>
+                                        </form>
+                                    {% endif %}
+                                    <form method="post" action="{{ path('admin_orders', {status: statusFilter, search: search}) }}" style="display:inline; margin:0;" onsubmit="return confirm('Delete order #{{ o.id }}?');">
+                                        <input type="hidden" name="action" value="delete_request">
+                                        <input type="hidden" name="order_id" value="{{ o.id }}">
+                                        <button type="submit" class="btn-admin-danger" style="padding: 5px 8px; font-size: 11px;">🗑️</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

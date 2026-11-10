@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HM Café | Register{% endblock %}
+
+{% block body %}
+<section style="padding: 120px 7% 80px; min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div style="width: 100%; max-width: 460px; background: #111; border: 1px solid #222; border-radius: 16px; padding: 40px; color: #fff;">
+        <div style="text-align: center; margin-bottom: 25px;">
+            <img src="{{ asset('assets/logo.png') }}" alt="HM Café" style="width: 50px; height: 50px; margin-bottom: 10px;" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+            <h2 style="color: #fff; margin: 0 0 6px;">Create an Account</h2>
+            <p style="color: #888; font-size: 13px; margin: 0;">Join the HM Café community</p>
+        </div>
+
+        {{ form_errors(registrationForm) }}
+
+        {{ form_start(registrationForm) }}
+            <div style="margin-bottom: 20px;">
+                {{ form_label(registrationForm.username, 'USERNAME', {'label_attr': {'style': 'color:#aaa; font-size:12px; display:block; margin-bottom:6px;'}}) }}
+                {{ form_widget(registrationForm.username, {'attr': {'style': 'width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;'}}) }}
+                {{ form_errors(registrationForm.username) }}
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                {{ form_label(registrationForm.plainPassword, 'PASSWORD', {'label_attr': {'style': 'color:#aaa; font-size:12px; display:block; margin-bottom:6px;'}}) }}
+                {{ form_widget(registrationForm.plainPassword, {'attr': {'style': 'width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;'}}) }}
+                {{ form_errors(registrationForm.plainPassword) }}
+            </div>
+
+            <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 8px;">
+                {{ form_widget(registrationForm.agreeTerms) }}
+                {{ form_label(registrationForm.agreeTerms, 'I agree to the terms and conditions', {'label_attr': {'style': 'color:#aaa; font-size:12px; margin:0;'}}) }}
+                {{ form_errors(registrationForm.agreeTerms) }}
+            </div>
+
+            <button type="submit" class="hero-btn green-btn" style="width:100%; padding:14px; border:none; cursor:pointer; font-size:14px; text-align:center;">
+                REGISTER
+            </button>
+        {{ form_end(registrationForm) }}
+
+        <div style="text-align: center; margin-top: 20px; font-size: 13px; color: #888;">
+            Already have an account? 
+            <a href="{{ path('app_login') }}" style="color: var(--green); text-decoration: none; font-weight: bold;">Sign In</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

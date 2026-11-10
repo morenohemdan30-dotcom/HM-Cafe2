@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HM Café | Login{% endblock %}
+
+{% block body %}
+<section style="padding: 120px 7% 80px; min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div style="width: 100%; max-width: 440px; background: #111; border: 1px solid #222; border-radius: 16px; padding: 40px;">
+        <div style="text-align: center; margin-bottom: 25px;">
+            <img src="{{ asset('assets/logo.png') }}" alt="HM Café" style="width: 50px; height: 50px; margin-bottom: 10px;" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+            <h2 style="color: #fff; margin: 0 0 6px;">Welcome Back</h2>
+            <p style="color: #888; font-size: 13px; margin: 0;">Sign in to your HM Café account</p>
+        </div>
+
+        {% if error %}
+            <div class="form-message error" style="margin-bottom: 20px;">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div style="margin-bottom: 20px;">
+                <label style="color:#aaa; font-size:12px; display:block; margin-bottom:6px;">USERNAME</label>
+                <input type="text" name="_username" value="{{ last_username }}" required autofocus 
+                       style="width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color:#aaa; font-size:12px; display:block; margin-bottom:6px;">PASSWORD</label>
+                <input type="password" name="_password" required 
+                       style="width:100%; padding:12px; background:#181818; border:1px solid #333; color:#fff; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" name="_remember_me" id="_remember_me">
+                <label for="_remember_me" style="color:#aaa; font-size:12px; margin:0; cursor:pointer;">Remember me</label>
+            </div>
+
+            <button type="submit" class="hero-btn green-btn" style="width:100%; padding:14px; border:none; cursor:pointer; font-size:14px;">
+                LOG IN
+            </button>
+
+            <div style="text-align: center; margin-top: 20px; font-size: 13px; color: #888;">
+                Don't have an account yet? 
+                <a href="{{ path('app_register') }}" style="color: var(--green); text-decoration: none; font-weight: bold;">Register</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

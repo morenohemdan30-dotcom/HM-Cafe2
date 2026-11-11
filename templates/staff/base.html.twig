@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HM Café | Staff Workspace{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('style.css') }}?v=2.2">
+    <link rel="stylesheet" href="{{ asset('innovation.css') }}?v=2.2">
+    <link rel="stylesheet" href="{{ asset('admin.css') }}?v=2.2">
+    <style>
+        .staff-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .staff-nav a {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .staff-nav a:hover, .staff-nav a.active {
+            color: #00d414;
+            background: rgba(0, 212, 20, 0.1);
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="admin-body">
+
+<header style="background: #111; border-bottom: 1px solid #222; padding: 14px 4%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <a href="{{ path('staff_products') }}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff;">
+            <img src="{{ asset('assets/logo.png') }}" alt="HM Café" style="width: 36px; height: 36px; object-fit: contain;">
+            <div>
+                <strong style="font-size: 16px; display: block; line-height: 1;">HM <span style="color: #00d414;">Café</span></strong>
+                <span style="font-size: 10px; color: #ffd700; letter-spacing: 1px; font-weight: 700;">STAFF WORKSPACE</span>
+            </div>
+        </a>
+    </div>
+
+    <nav class="staff-nav">
+        <a href="{{ path('staff_products') }}" class="{{ app.request.attributes.get('_route') == 'staff_products' ? 'active' : '' }}">
+            📦 Menu Records
+        </a>
+        <a href="{{ path('staff_profile') }}" class="{{ app.request.attributes.get('_route') == 'staff_profile' ? 'active' : '' }}">
+            👤 My Profile
+        </a>
+        <a href="{{ path('app_home') }}" target="_blank" style="color: #888;">
+            ☕ Storefront ↗
+        </a>
+    </nav>
+
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 12px; color: #aaa;">
+            Logged in as <strong style="color: #fff;">{{ app.user ? app.user.userIdentifier : 'Staff' }}</strong>
+            <span style="display: inline-block; font-size: 9px; background: rgba(255,215,0,0.15); color: #ffd700; border: 1px solid #ffd700; padding: 1px 6px; border-radius: 4px; margin-left: 4px;">ROLE_STAFF</span>
+        </span>
+        <a href="{{ path('app_logout') }}" class="btn-admin-outline" style="padding: 6px 12px; font-size: 11px; text-decoration: none;">
+            Sign Out
+        </a>
+    </div>
+</header>
+
+<main style="max-width: 1200px; margin: 0 auto; padding: 35px 4% 60px;">
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="form-message {{ label }}" style="margin-bottom: 20px;">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    {% block body %}{% endblock %}
+</main>
+
+{% block javascripts %}{% endblock %}
+</body>
+</html>
+

@@ -44,8 +44,20 @@ function require_login(string $redirect = "index.php"): void {
 }
 
 function require_admin(string $loginUrl = "login.php"): void {
+    $isSubdir = (basename(dirname($_SERVER["PHP_SELF"])) !== "HM-Cafe2" && basename(dirname($_SERVER["PHP_SELF"])) !== "htdocs");
+    $homeUrl = $isSubdir ? "../index.php" : "index.php";
+    $actualLoginUrl = $isSubdir ? "../login.php" : "login.php";
+
+    if (!is_logged_in()) {
+        flash("error", "Please login with an administrator account to access the admin area.");
+        header("Location: " . $actualLoginUrl . "?redirect=admin/dashboard.php");
+        exit;
+    }
+
     if (!is_admin()) {
-        header("Location: " . $loginUrl);
+        flash("error", "Access denied: You do not have permission to access the Administrator Dashboard.");
+        http_response_code(403);
+        header("Location: " . $homeUrl);
         exit;
     }
 }

@@ -32,6 +32,24 @@ if ($conn->connect_errno) {
 
 $conn->set_charset("utf8mb4");
 
+// Step 2b: Also initialize PDO connection for PDO-based queries
+$pdo = null;
+try {
+    $pdo = new PDO(
+        "mysql:host={$host};port={$port};dbname={$database};charset=utf8mb4",
+        $username,
+        $password,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]
+    );
+} catch (Throwable $e) {
+    // Graceful fallback if PDO connection encounters an issue
+    $pdo = null;
+}
+
 // Step 3: Directly ensure all tables and column migrations exist
 function ensure_hm_cafe_tables(mysqli $conn): void {
     // 1. Users Table
@@ -66,11 +84,19 @@ function ensure_hm_cafe_tables(mysqli $conn): void {
             `product_name` VARCHAR(100) NOT NULL UNIQUE,
             `description` VARCHAR(255) NOT NULL,
             `price` DECIMAL(10,2) NOT NULL,
+            `stock` INT NOT NULL DEFAULT 50,
             `image` VARCHAR(255) NOT NULL,
             `category` VARCHAR(50) NOT NULL DEFAULT 'Coffee',
             `is_active` TINYINT(1) NOT NULL DEFAULT 1
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
+
+    // Migration fallback for products stock column
+    $prodStockCheck = $conn->query("SHOW COLUMNS FROM `products` LIKE 'stock'");
+    if ($prodStockCheck && $prodStockCheck->num_rows === 0) {
+        $conn->query("ALTER TABLE `products` ADD COLUMN `stock` INT NOT NULL DEFAULT 50 AFTER `price`");
+        $conn->query("UPDATE `products` SET `stock` = 50 WHERE `stock` IS NULL OR `stock` = 0");
+    }
 
     // Migration fallback for products category column
     $prodCatCheck = $conn->query("SHOW COLUMNS FROM `products` LIKE 'category'");

@@ -1,0 +1,86 @@
+{% extends 'staff/base.html.twig' %}
+
+{% block title %}HM Café | Staff Profile & Settings{% endblock %}
+
+{% block body %}
+<div class="admin-welcome" style="margin-bottom: 25px;">
+    <h1>👤 Staff Profile &amp; Account</h1>
+    <p>View your staff credentials, role permissions, and change your password.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+    <!-- PROFILE OVERVIEW CARD -->
+    <div class="admin-panel-card">
+        <h2 style="font-size: 16px; margin-top: 0; color: #fff; border-bottom: 1px solid #222; padding-bottom: 12px;">
+            Staff Identity Details
+        </h2>
+
+        <div style="margin-bottom: 16px;">
+            <span style="font-size: 11px; color: #888; display: block; font-weight: 700;">USERNAME</span>
+            <strong style="font-size: 16px; color: #fff;">{{ user.username }}</strong>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <span style="font-size: 11px; color: #888; display: block; font-weight: 700;">ASSIGNED ROLE</span>
+            <span style="display: inline-block; font-size: 11px; background: rgba(255,215,0,0.15); color: #ffd700; border: 1px solid #ffd700; padding: 2px 8px; border-radius: 4px; font-weight: 700;">
+                STAFF (ROLE_STAFF)
+            </span>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <span style="font-size: 11px; color: #888; display: block; font-weight: 700;">ACCOUNT STATUS</span>
+            <span style="display: inline-block; font-size: 11px; background: rgba(0,212,20,0.1); color: #00d414; border: 1px solid #00d414; padding: 2px 8px; border-radius: 4px; font-weight: 700;">
+                {{ user.status|upper }}
+            </span>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <span style="font-size: 11px; color: #888; display: block; font-weight: 700;">REGISTERED SINCE</span>
+            <span style="color: #ccc; font-size: 13px;">{{ user.createdAt|date('F d, Y') }}</span>
+        </div>
+
+        <form method="post" action="{{ path('staff_profile') }}" style="border-top: 1px solid #222; padding-top: 16px; margin-top: 20px;">
+            <input type="hidden" name="action" value="update_profile">
+            <div style="margin-bottom: 14px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">UPDATE CONTACT EMAIL</label>
+                <input type="email" name="email" value="{{ user.email }}" placeholder="staff@hmcafe.com" 
+                       style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 6px;">
+            </div>
+            <button type="submit" class="btn-admin-primary" style="width: 100%; padding: 9px;">Save Email</button>
+        </form>
+    </div>
+
+    <!-- CHANGE PASSWORD CARD -->
+    <div class="admin-panel-card">
+        <h2 style="font-size: 16px; margin-top: 0; color: #fff; border-bottom: 1px solid #222; padding-bottom: 12px;">
+            🔐 Change Password
+        </h2>
+
+        <form method="post" action="{{ path('staff_profile') }}">
+            <input type="hidden" name="action" value="change_password">
+            <input type="hidden" name="_token" value="{{ csrf_token('staff_change_password') }}">
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">CURRENT PASSWORD *</label>
+                <input type="password" name="current_password" required placeholder="Enter current password" 
+                       style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 6px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">NEW PASSWORD *</label>
+                <input type="password" name="new_password" required placeholder="Minimum 6 characters" 
+                       style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 6px;">
+            </div>
+
+            <div style="margin-bottom: 22px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">CONFIRM NEW PASSWORD *</label>
+                <input type="password" name="confirm_password" required placeholder="Re-type new password" 
+                       style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 6px;">
+            </div>
+
+            <button type="submit" class="btn-admin-primary" style="width: 100%; padding: 11px;">Update Password</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,285 @@
+{% extends 'staff/base.html.twig' %}
+
+{% block title %}HM Café | Staff Record Management{% endblock %}
+
+{% block body %}
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
+    <div>
+        <h1 style="margin: 0 0 4px; color: #fff;">📦 Staff <span style="color: #00d414;">Record Management</span></h1>
+        <p style="color: #888; font-size: 13px; margin: 0;">Create new products and manage records. Per security policy, you can edit and delete only records you created.</p>
+    </div>
+    <button type="button" class="btn-admin-primary" onclick="openStaffAddModal()">
+        ➕ CREATE NEW RECORD
+    </button>
+</div>
+
+<!-- POLICY ALERT -->
+<div style="background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.3); border-radius: 10px; padding: 12px 18px; margin-bottom: 20px; font-size: 12px; color: #ffd700; display: flex; align-items: center; gap: 10px;">
+    <span style="font-size: 18px;">ℹ️</span>
+    <span><strong>Staff Authorization Rule:</strong> You have full permission to view all catalog records. You can <strong>edit and delete ONLY records created under your staff account</strong>. Admin records and other staff records are view-only.</span>
+</div>
+
+<!-- FILTER & SEARCH BAR -->
+<div class="admin-panel-card" style="margin-bottom: 20px; padding: 14px 20px;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 11px; color: #888; font-weight: 700;">OWNERSHIP:</span>
+            <a href="{{ path('staff_products', {category: categoryFilter, owner: 'all', search: search}) }}" 
+               class="hero-btn {{ ownerFilter == 'all' ? 'green-btn' : 'outline-btn' }}" style="padding: 5px 12px; font-size: 11px;">
+                ALL RECORDS ({{ products|length }})
+            </a>
+            <a href="{{ path('staff_products', {category: categoryFilter, owner: 'mine', search: search}) }}" 
+               class="hero-btn {{ ownerFilter == 'mine' ? 'green-btn' : 'outline-btn' }}" style="padding: 5px 12px; font-size: 11px;">
+                ⭐ ONLY MY RECORDS
+            </a>
+        </div>
+
+        <form method="get" action="{{ path('staff_products') }}" style="display: flex; gap: 8px; margin: 0;">
+            <input type="hidden" name="owner" value="{{ ownerFilter }}">
+            <input type="hidden" name="category" value="{{ categoryFilter }}">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search items..."
+                   style="padding: 7px 12px; background: #181818; border: 1px solid #333; color: #fff; border-radius: 6px; font-size: 12px;">
+            <button type="submit" class="btn-admin-primary" style="padding: 7px 14px; font-size: 12px;">Search</button>
+            {% if search != '' %}
+                <a href="{{ path('staff_products', {owner: ownerFilter, category: categoryFilter}) }}" class="btn-admin-outline" style="padding: 7px 10px; font-size: 12px;">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- RECORDS TABLE -->
+<div class="admin-panel-card" style="padding: 0; overflow: hidden;">
+    <div class="orders-table-wrap">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>ITEM</th>
+                    <th>CATEGORY</th>
+                    <th>PRICE</th>
+                    <th>STOCK</th>
+                    <th>AUTHOR / OWNER</th>
+                    <th>PERMISSIONS</th>
+                    <th style="text-align: right;">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if products is empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #555;">
+                            No product records found.
+                        </td>
+                    </tr>
+                {% else %}
+                    {% for p in products %}
+                        {% set isMyRecord = app.user and p.createdBy and p.createdBy.id == app.user.id %}
+                        <tr style="{{ isMyRecord ? 'background: rgba(0,212,20,0.03);' : '' }}">
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <img src="{{ asset('assets/' ~ p.image) }}" alt="{{ p.name }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;" onerror="this.src='{{ asset('assets/hero-coffee.png') }}'">
+                                    <div>
+                                        <strong style="color: #fff; font-size: 14px;">{{ p.name }}</strong>
+                                        <p style="color: #888; font-size: 11px; margin: 2px 0 0; max-width: 250px;">{{ p.description }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="font-size: 11px; color: var(--green); background: rgba(0,212,20,0.1); border: 1px solid rgba(0,212,20,0.3); padding: 3px 8px; border-radius: 6px;">
+                                    {{ p.category ? p.category.categoryname : 'General' }}
+                                </span>
+                            </td>
+                            <td><strong style="color: #ffd700; font-size: 14px;">₱{{ p.price|number_format(2) }}</strong></td>
+                            <td>{{ p.stock }} units</td>
+                            <td>
+                                {% if isMyRecord %}
+                                    <span style="font-size: 11px; color: #00d414; font-weight: 700; background: rgba(0,212,20,0.15); border: 1px solid #00d414; padding: 2px 8px; border-radius: 4px;">
+                                        ⭐ YOU (Your Record)
+                                    </span>
+                                {% elseif p.createdBy %}
+                                    <span style="font-size: 11px; color: #aaa;">
+                                        {{ p.createdBy.username }} ({{ p.createdBy.role|upper }})
+                                    </span>
+                                {% else %}
+                                    <span style="font-size: 11px; color: #777;">Administrator</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if isMyRecord %}
+                                    <span style="font-size: 10px; color: #00d414; font-weight: 600;">Full Edit &amp; Delete</span>
+                                {% else %}
+                                    <span style="font-size: 10px; color: #777;">🔒 View Only (Restricted)</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <div class="action-cell" style="justify-content: flex-end; gap: 6px;">
+                                    {% if isMyRecord %}
+                                        <!-- Edit button allowed for own records -->
+                                        <button type="button" class="btn-admin-outline" 
+                                                onclick="openStaffEditModal({{ p.id }}, '{{ csrf_token('staff_product_edit_' ~ p.id) }}', '{{ p.name|e('js') }}', '{{ p.category ? p.category.categoryname|e('js') : 'Coffee' }}', '{{ p.price }}', {{ p.stock }}, '{{ p.image|e('js') }}', '{{ p.description|e('js') }}')"
+                                                style="padding: 5px 9px; font-size: 11px; color: #00d414; border-color: #00d414;">
+                                            ✏️ Edit
+                                        </button>
+
+                                        <!-- Delete button with confirmation for own records -->
+                                        <form method="post" action="{{ path('staff_product_delete', {id: p.id}) }}" 
+                                              style="display:inline; margin:0;"
+                                              onsubmit="return confirm('MANDATORY CONFIRMATION:\nAre you sure you want to delete your record \'{{ p.name }}\'?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('staff_product_delete_' ~ p.id) }}">
+                                            <button type="submit" class="btn-admin-danger" style="padding: 5px 8px; font-size: 11px;">🗑️</button>
+                                        </form>
+                                    {% else %}
+                                        <span style="font-size: 11px; color: #555; padding: 4px 8px;">—</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL: ADD RECORD (STAFF) -->
+<div id="staffAddModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #141414; border: 1px solid #333; border-radius: 14px; max-width: 500px; width: 100%; padding: 28px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 12px;">
+            <h2 style="color: #fff; margin: 0; font-size: 18px;">➕ Create Product Record</h2>
+            <button type="button" onclick="closeStaffAddModal()" style="background: none; border: none; color: #888; font-size: 22px; cursor: pointer;">&times;</button>
+        </div>
+        <form method="post" action="{{ path('staff_product_add') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('staff_product_add') }}">
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">ITEM / PRODUCT NAME *</label>
+                <input type="text" name="product_name" required placeholder="e.g. Hazelnut Iced Coffee" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">CATEGORY *</label>
+                <select name="category" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <option value="Coffee" selected>Coffee</option>
+                    <option value="Non-Coffee">Non-Coffee</option>
+                    <option value="Pastries">Pastries</option>
+                    <option value="Meals">Meals</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">PRICE (₱) *</label>
+                    <input type="number" step="0.01" name="price" value="120.00" required style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                </div>
+                <div>
+                    <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">INITIAL STOCK *</label>
+                    <input type="number" name="stock" value="50" required style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">IMAGE FILE</label>
+                <select name="image" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <option value="menu-iced-coffee.png">menu-iced-coffee.png</option>
+                    <option value="menu-matcha.png">menu-matcha.png</option>
+                    <option value="menu-cake.png">menu-cake.png</option>
+                    <option value="menu-pasta.png">menu-pasta.png</option>
+                    <option value="hero-coffee.png">hero-coffee.png</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">DESCRIPTION / NOTES</label>
+                <textarea name="description" rows="3" placeholder="Recipe notes, ingredients, description..." style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-admin-outline" onclick="closeStaffAddModal()" style="padding: 10px 16px;">Cancel</button>
+                <button type="submit" class="btn-admin-primary" style="padding: 10px 20px;">Save Under My Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: EDIT OWN RECORD (STAFF) -->
+<div id="staffEditModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #141414; border: 1px solid #333; border-radius: 14px; max-width: 500px; width: 100%; padding: 28px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 12px;">
+            <h2 style="color: #fff; margin: 0; font-size: 18px;">✏️ Edit Your Created Record</h2>
+            <button type="button" onclick="closeStaffEditModal()" style="background: none; border: none; color: #888; font-size: 22px; cursor: pointer;">&times;</button>
+        </div>
+        <form id="staffEditForm" method="post" action="">
+            <input type="hidden" name="_token" id="staffEditCsrfToken" value="">
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">PRODUCT NAME *</label>
+                <input type="text" name="product_name" id="staffEditName" required style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">CATEGORY *</label>
+                <select name="category" id="staffEditCategory" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <option value="Coffee">Coffee</option>
+                    <option value="Non-Coffee">Non-Coffee</option>
+                    <option value="Pastries">Pastries</option>
+                    <option value="Meals">Meals</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">PRICE (₱) *</label>
+                    <input type="number" step="0.01" name="price" id="staffEditPrice" required style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                </div>
+                <div>
+                    <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">STOCK QUANTITY *</label>
+                    <input type="number" name="stock" id="staffEditStock" required style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">IMAGE FILE</label>
+                <select name="image" id="staffEditImage" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;">
+                    <option value="menu-iced-coffee.png">menu-iced-coffee.png</option>
+                    <option value="menu-matcha.png">menu-matcha.png</option>
+                    <option value="menu-cake.png">menu-cake.png</option>
+                    <option value="menu-pasta.png">menu-pasta.png</option>
+                    <option value="hero-coffee.png">hero-coffee.png</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color:#aaa; font-size:11px; display:block; margin-bottom:5px; font-weight:700;">DESCRIPTION</label>
+                <textarea name="description" id="staffEditDescription" rows="3" style="width:100%; padding:10px; background:#1c1c1c; border:1px solid #333; color:#fff; border-radius:6px;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-admin-outline" onclick="closeStaffEditModal()" style="padding: 10px 16px;">Cancel</button>
+                <button type="submit" class="btn-admin-primary" style="padding: 10px 20px;">Save Record</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openStaffAddModal() {
+    document.getElementById('staffAddModal').style.display = 'flex';
+}
+function closeStaffAddModal() {
+    document.getElementById('staffAddModal').style.display = 'none';
+}
+function openStaffEditModal(id, token, name, category, price, stock, image, description) {
+    const form = document.getElementById('staffEditForm');
+    form.action = "{{ path('staff_products') }}/" + id + "/edit";
+    document.getElementById('staffEditCsrfToken').value = token;
+    document.getElementById('staffEditName').value = name;
+    document.getElementById('staffEditCategory').value = category;
+    document.getElementById('staffEditPrice').value = price;
+    document.getElementById('staffEditStock').value = stock;
+    document.getElementById('staffEditImage').value = image;
+    document.getElementById('staffEditDescription').value = description;
+    document.getElementById('staffEditModal').style.display = 'flex';
+}
+function closeStaffEditModal() {
+    document.getElementById('staffEditModal').style.display = 'none';
+}
+</script>
+{% endblock %}
